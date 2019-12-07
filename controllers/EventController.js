@@ -1,8 +1,17 @@
 const Event = require('../models/Events');
-
+const { validationResult } = require('express-validator/check')
 
 module.exports = {
   addEvent: async (req, res) => {
+
+    console.log("basha ana hena");
+    const errors = validationResult(req); 
+
+    if (!errors.isEmpty()) {
+      res.status(422).json({ errors: errors.array() });
+      return;
+    }
+
     let data = req.body;
 
     data.start =  new Date().getTime() - new Date().getTimezoneOffset() * 60 * 1000;  
@@ -11,8 +20,7 @@ module.exports = {
     const existingEvent = await Event.findOne({
       $and: [
         {
-          'location.latLng.lng': data.location.latLng.lng,
-          'location.latLng.lat': data.location.latLng.lat,
+          'location.lngLat.coordinates': [data.location.lngLat.lng, data.location.lngLat.lat]
         },
         {
           'start': { $gte: data.start },
@@ -27,6 +35,7 @@ module.exports = {
         message: 'An Event already exist at this venue on this day',
       });
     } else {
+      data.location.ad
       Event.create(data)
         .then((event) => {
           res.status(200).json({
