@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
-
 const { Schema } = mongoose;
 
+mongoose.connect('mongodb://UserName:Password@ds131137.mlab.com:31137/brickbase-test', { useNewUrlParser: true });
 const EventSchema = new Schema(
   {
     end: { type: Date, required: true },
@@ -22,5 +22,6 @@ const EventSchema = new Schema(
 );
 
 
+var Event = mongoose.model('Event', EventSchema);
 
 module.exports = Event;
