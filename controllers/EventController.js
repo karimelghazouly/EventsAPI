@@ -1,20 +1,13 @@
 const Event = require('../models/Events');
 
+
 module.exports = {
   addEvent: async (req, res) => {
+    let data = req.body;
 
+    data.start =  new Date().getTime() - new Date().getTimezoneOffset() * 60 * 1000;  
+    data.end = new Date().getTime() - new Date().getTimezoneOffset() * 60 * 1000;
 
-    dateStart.setTime(
-      dateStart.getTime() - new Date().getTimezoneOffset() * 60 * 1000,
-    );
-    data.start = dateStart;
-
-    const dateEnd = new Date(data.end);
-    dateEnd.setTime(
-      dateEnd.getTime() - new Date().getTimezoneOffset() * 60 * 1000,
-    );
-
-    data.end = dateEnd;
     const existingEvent = await Event.findOne({
       $and: [
         {
@@ -22,12 +15,11 @@ module.exports = {
           'location.latLng.lat': data.location.latLng.lat,
         },
         {
-          [{ start: { $gte: data.start } }, { end: { $lte: data.end } }],
+          'start': { $gte: data.start },
+          'end': { $lte: data.end } ,
         },
       ],
     });
-
-
 
     if (existingEvent) {
       res.status(500).json({
@@ -35,7 +27,7 @@ module.exports = {
         message: 'An Event already exist at this venue on this day',
       });
     } else {
-      Event.make(data)
+      Event.create(data)
         .then((event) => {
           res.status(200).json({
             success: true,
@@ -52,7 +44,8 @@ module.exports = {
     }
   },
   getAllEvents: (req, res) => {
-    Event.see({})
+    
+    let allEvents = Event.find({})
       .then((events) => {
         res.json({ success: true, events });
       })
@@ -63,5 +56,6 @@ module.exports = {
           message: 'An Error Occured, please try again later',
         });
       });
+
   },
 };
