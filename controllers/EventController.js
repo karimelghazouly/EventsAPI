@@ -14,8 +14,8 @@ module.exports = {
 
     let data = req.body;
 
-    data.start =  new Date().getTime() - new Date().getTimezoneOffset() * 60 * 1000;  
-    data.end = new Date().getTime() - new Date().getTimezoneOffset() * 60 * 1000;
+    data.start =  data.start - new Date().getTimezoneOffset() * 60 * 1000;  
+    data.end = data.end - new Date().getTimezoneOffset() * 60 * 1000;
 
     const existingEvent = await Event.findOne({
       $and: [
