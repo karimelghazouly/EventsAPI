@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-mongoose.connect('mongodb://elghazouly:KK123456@ds131137.mlab.com:31137/brickbase-test', { useNewUrlParser: true });
+mongoose.connect('mongodb://elghazouly:KK123456@ds131137.mlab.com:31137/brickbase-test', { useNewUrlParser: true, useUnifiedTopology: true });
 
 const pointSchema = new mongoose.Schema({
   type: {
