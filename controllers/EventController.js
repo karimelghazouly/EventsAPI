@@ -1,19 +1,16 @@
 const Event = require('../models/Events');
-const { validationResult } = require('express-validator/check')
+const { validationResult } = require('express-validator');
 
 module.exports = {
   addEvent: async (req, res) => {
 
-    console.log("basha ana hena");
-    const errors = validationResult(req); 
-
+    const errors = validationResult(req);
     if (!errors.isEmpty()) {
       res.status(422).json({ errors: errors.array() });
       return;
     }
 
     let data = req.body;
-
     data.start =  data.start - new Date().getTimezoneOffset() * 60 * 1000;  
     data.end = data.end - new Date().getTimezoneOffset() * 60 * 1000;
 
@@ -52,9 +49,9 @@ module.exports = {
         });
     }
   },
-  getAllEvents: (req, res) => {
+  getAllEvents: async (req, res) => {
     
-    let allEvents = Event.find({})
+    let allEvents = await Event.find({})
       .then((events) => {
         res.json({ success: true, events });
       })
