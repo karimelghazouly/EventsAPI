@@ -1,7 +1,10 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
+const config = require('config');
 
-mongoose.connect('mongodb://elghazouly:KK123456@ds131137.mlab.com:31137/brickbase-test', { useNewUrlParser: true, useUnifiedTopology: true });
+let ConnectionString = config.get("DB_Connection_String");
+
+mongoose.connect(ConnectionString, { useNewUrlParser: true, useUnifiedTopology: true });
 
 const pointSchema = new mongoose.Schema({
   type: {
