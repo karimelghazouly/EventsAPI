@@ -1,17 +1,15 @@
 const Event = require('../models/Events');
-const { validationResult } = require('express-validator');
+const User = require('../models/User');
+const ErrorChecker = require('../validator/ErrorChecker');
 
 module.exports = {
   addEvent: async (req, res) => {
-
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res.status(422).json({ errors: errors.array() });
+    if (ErrorChecker.checkErrors(req, res))
       return;
-    }
 
-    let data = req.body;
-    data.start =  data.start - new Date().getTimezoneOffset() * 60 * 1000;  
+    var user = req.user;
+    var data = req.body;
+    data.start = data.start - new Date().getTimezoneOffset() * 60 * 1000;
     data.end = data.end - new Date().getTimezoneOffset() * 60 * 1000;
 
     const existingEvent = await Event.findOne({
@@ -21,10 +19,11 @@ module.exports = {
         },
         {
           'start': { $gte: data.start },
-          'end': { $lte: data.end } ,
+          'end': { $lte: data.end },
         },
       ],
     });
+
 
     if (existingEvent) {
       res.status(500).json({
@@ -32,9 +31,24 @@ module.exports = {
         message: 'An Event already exist at this venue on this day',
       });
     } else {
-      data.location.ad
+
+      data.ownerId = user._id;
       Event.create(data)
         .then((event) => {
+          console.log("ana hena hazwd el event hao");
+          console.log(user._id);
+          console.log(event._id);
+          User.findOneAndUpdate(
+            user._id,
+            { $push: { events: event._id } },
+            (err,done) =>{
+              if(err)
+              console.log(err);
+              else
+              console.log(done);
+            }
+          );
+
           res.status(200).json({
             success: true,
             event,
@@ -50,8 +64,7 @@ module.exports = {
     }
   },
   getAllEvents: async (req, res) => {
-    
-    let allEvents = await Event.find({})
+    await Event.find({})
       .then((events) => {
         res.json({ success: true, events });
       })
@@ -62,6 +75,21 @@ module.exports = {
           message: 'An Error Occured, please try again later',
         });
       });
+  },
 
+  getAllEventsForUser: async (req, res) => {
+
+    var user = req.user;
+    await Event.find({ ownerId: user._id })
+      .then((events) => {
+        res.json({ success: true, events });
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(500).json({
+          success: false,
+          message: 'An Error Occured, please try again later',
+        });
+      });
   },
 };
