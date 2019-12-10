@@ -1,8 +1,8 @@
 const User = require('../models/User');
-const bcrypt = require('bcrypt');
+const Bcrypt = require('bcrypt');
 const ErrorChecker = require('../validator/ErrorChecker');
-const jwt = require("jsonwebtoken");
-const config = require('config');
+const JWT = require("jsonwebtoken");
+const Config = require('config');
 
 module.exports = {
     addUser: async (req, res) => {
@@ -10,28 +10,28 @@ module.exports = {
             return;
 
         var data = req.body;
-        var existingUser = await User.find({
+        var existing_user = await User.find({
             $or: [
                 { username: data.username },
                 { email: data.email }
             ]
         });
 
-        if (existingUser && existingUser.length > 0) {
+        if (existing_user && existing_user.length > 0) {
             res.status(500).json({
                 success: false,
                 message: 'A User already exists',
             });
         }
         else {
-            data.password = await bcrypt.hash(data.password, 10);
+            data.password = await Bcrypt.hash(data.password, 10);
 
             User.create(data).then((user) => {
-                var Generatedtoken = jwt.sign(user.toJSON(), config.get('TOKEN_SECRET'));
-                console.log(user);
+
+                var generated_token = JWT.sign(user.toJSON(), Config.get('TOKEN_SECRET'));
                 res.status(200).json({
                     success: true,
-                    token: Generatedtoken,
+                    token: generated_token,
                 });
             })
                 .catch((err) => {
@@ -47,32 +47,33 @@ module.exports = {
     login: async (req, res) => {
 
         var data = req.body;
-        var existingUser = await User.findOne({
+        var existing_user = await User.findOne({
             $or: [
                 { username: data.username },
                 { email: data.email }
             ]
         });
 
-        if (!existingUser) {
+        if (!existing_user) {
             res.status(500).json({
                 success: false,
                 message: 'This username does not exist',
             });
         }
         else {
-            bcrypt.compare(data.password, existingUser.password).then((found) => {
-                if (found) {
-                    var Generatedtoken = jwt.sign(existingUser.toJSON(), config.get('TOKEN_SECRET'));
+            Bcrypt.compare(data.password, existing_user.password).then((match) => {
+                if (match) {
+                    var generated_token = JWT.sign(existing_user.toJSON(), Config.get('TOKEN_SECRET'));
+                    
                     res.status(200).json({
                         success: true,
-                        token: Generatedtoken,
+                        token: generated_token,
                     });
                 }
                 else {
                     res.status(500).json({
                         success: false,
-                        message: 'This username does not exist',
+                        message: 'Incorrect Password',
                     });
                 }
             }).
@@ -95,10 +96,12 @@ module.exports = {
     },
 
     authToken: async (req, res, next) => {
-        const authHeader = req.headers['authorization'];
-        if (authHeader && authHeader.split(' ')[1] !== null) {
-            const token = authHeader.split(' ')[1];
-            jwt.verify(token, config.get('TOKEN_SECRET'), (err, user) => {
+        const auth_Header = req.headers['authorization'];
+        if (auth_Header && auth_Header.split(' ')[1] !== null) {
+
+            const token = auth_Header.split(' ')[1];
+            JWT.verify(token, Config.get('TOKEN_SECRET'), (err, user) => {
+
                 if (err) {
                     res.status(403).json({
                         success: false,
