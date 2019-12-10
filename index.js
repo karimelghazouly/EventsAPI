@@ -2,8 +2,8 @@ require('./models/InitConnection');
 
 const express = require('express');
 const cors = require('cors');
-const eventRoutes = require('./routes/events');
-const usersRoutes = require('./routes/users');
+const EventRoutes = require('./routes/EventsRoutes');
+const UsersRoutes = require('./routes/UsersRoutes');
 
 var app = express();
 
@@ -14,8 +14,8 @@ app.use(
     extended: true,
   }),
 );
-app.use('/events', eventRoutes);
-app.use('/users', usersRoutes);
+app.use('/events', EventRoutes);
+app.use('/users', UsersRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log('Application listening in port ', PORT));
