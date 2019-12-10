@@ -7,8 +7,8 @@ exports.validate = () => {
         body('end', "Event End Does Not Exist Or Not Correclty Formated").exists().isInt(),
         body('title', "Event Title Does Not Exist Or Not Correclty Formated").exists().isString(),
         body('details', "Event Details Does Not Exist Or Not Correclty Formated").exists().isString(),
-        body('location', "Event Location Does Not Exist Or Not Correclty Formated").exists().isJSON(),
+        body('location', "Event Location Does Not Exist Or Not Correclty Formated").exists(),
         body('location.address', "Event Location Address Does Not Exist Or Not Correclty Formated").exists().isString(),
-        body('location.lngLat', "Event Latitude and Longitude Does Not Exist Or Not Correclty Formated").exists().isLatLong()
+        body('location.lngLat.coordinates', "Event Latitude and Longitude Does Not Exist Or Not Correclty Formated").exists()
     ]
 }
