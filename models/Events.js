@@ -1,12 +1,8 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
-const config = require('config');
 
-let ConnectionString = config.get("DB_Connection_String");
 
-mongoose.connect(ConnectionString, { useNewUrlParser: true, useUnifiedTopology: true });
-
-const pointSchema = new mongoose.Schema({
+const pointSchema = new Schema({
   type: {
     type: String,
     enum: ['Point'],
@@ -25,6 +21,7 @@ const EventSchema = new Schema(
     start: { type: Date, required: true },
     title: { type: String, required: true },
     details: { type: String, required: true },
+    ownerId: {type: Schema.Types.ObjectId, required: true},
     location: {
       address: { type: String, required: true },
       lngLat: {
@@ -39,6 +36,6 @@ const EventSchema = new Schema(
 );
 
 
-var Event = mongoose.model('Event', EventSchema);
+var Event = db.model('Event', EventSchema);
 
 module.exports = Event;
