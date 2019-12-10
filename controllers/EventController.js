@@ -9,23 +9,26 @@ module.exports = {
 
     var user = req.user;
     var data = req.body;
-    data.start = data.start - new Date().getTimezoneOffset() * 60 * 1000;
-    data.end = data.end - new Date().getTimezoneOffset() * 60 * 1000;
+    var offest = new Date().getTimezoneOffset() * 60 * 1000;
+    data.start = new Date(data.start) - new Date(data.start).getMinutes() * 1000 - offest
+    data.end = new Date(data.end) - new Date(data.end).getMinutes() * 1000 - offest;
 
-    const existingEvent = await Event.findOne({
+    const existing_event = await Event.findOne({
       $and: [
         {
-          'location.lngLat.coordinates': [data.location.lngLat.lng, data.location.lngLat.lat]
+          'location.lngLat.coordinates': data.location.lngLat.coordinates
         },
         {
-          'start': { $gte: data.start },
-          'end': { $lte: data.end },
+          'start': data.start ,
+          'end': data.end
         },
+        {
+          "ownerId": user._id
+        }
       ],
     });
 
-
-    if (existingEvent) {
+    if (existing_event) {
       res.status(500).json({
         success: false,
         message: 'An Event already exist at this venue on this day',
@@ -35,17 +38,12 @@ module.exports = {
       data.ownerId = user._id;
       Event.create(data)
         .then((event) => {
-          console.log("ana hena hazwd el event hao");
-          console.log(user._id);
-          console.log(event._id);
           User.findOneAndUpdate(
             user._id,
             { $push: { events: event._id } },
             (err,done) =>{
               if(err)
-              console.log(err);
-              else
-              console.log(done);
+                console.log(err);
             }
           );
 
