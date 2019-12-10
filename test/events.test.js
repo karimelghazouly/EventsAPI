@@ -1,12 +1,9 @@
 process.env.NODE_ENV = 'test';
 
-let mongoose = require("mongoose");
-let Event = require('../models/Events');
-
-
-let chai = require('chai');
-let chaiHttp = require('chai-http');
-let server = require('../index');
+var server = require('../index');
+var Event = require('../models/Events');
+var chai = require('chai');
+var chaiHttp = require('chai-http');
 const { expect } = chai;
 
 
@@ -23,7 +20,7 @@ describe('Events', () => {
   describe('/GET Events', () => {
     it('it should GET all the events', (done) => {
 
-      let event1 = {
+      var event1 = {
         "start": 123,
         "end": 33,
         "title": "christmas festival",
@@ -37,7 +34,7 @@ describe('Events', () => {
         }
       }
 
-      let event2 = {
+      var event2 = {
         "start": 123,
         "end": 33,
         "title": "This is a title",
@@ -76,7 +73,7 @@ describe('Events', () => {
   describe('/POST Events', () => {
     it('it should create new event', (done) => {
 
-      let event = {
+      var event = {
         "start": 123,
         "end": 33,
         "title": "This is a title",
@@ -111,7 +108,7 @@ describe('Events', () => {
   describe('/POST Events With Invalid Input', () => {
     it('it should not create new event', (done) => {
 
-      let event = {
+      var event = {
         "start": 123,
         "end": 33,
         "title": "This is a title",
@@ -135,9 +132,6 @@ describe('Events', () => {
       });
     });
   });
-
-
-
 
 
 
