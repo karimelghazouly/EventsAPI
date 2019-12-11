@@ -1,3 +1,4 @@
+## Please read the email I sent with the attached config files
 
 ## Overview
 Since I added extra folder and files I will talk first about the folder structure
