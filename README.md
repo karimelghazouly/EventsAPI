@@ -1,20 +1,132 @@
-# Code Test Brickbase
+An API for users and events written with node js and mongodb.
 
-This repository contains code written in NodeJS with errors, bug and incorrect code practice. Your tasks are to:
+## Overview
+Since I added extra folder and files I will talk first about the folder structure
 
-## Task 1
-1. Create Unit and Integration Tests up to for at least 70% test coverage
-2. Find and remove all the bugs and error
-3. Improve the code quality accordingly
-4. Create a SOLUTIONS.md file listing all the correction you made and why you took the decisions your took. This is to help us ascertain your problem solving skills
+./controllers
+This has the controllers where the main logic and fetching data exists
 
-## Task 2
-1. Create a new API for User
-2. Create a Models for a User
-3. For each event created, connect that event with a user such that every event has a user
-4. Create a way to retrieve all events for a user
-5. Make it possible to return all a user and all the events created by that user
+./models
+This has the database schemas and connection
+
+./routes
+This contains routes in which every url connect to a controller
+
+./config
+This has configeration files that has the secret data for dev and test, as I created two different DB for test and dev and i can specify which one to connect to by the config files.
+
+./test
+    /Integeration Tests
+        This contains the integeration tests that I wrote
+    /UnitTests
+        This contains the unit ests that I wrote
+    /TestHelpersfunctions
+        This contains helpers functions for both unit tests and integrations for cleaner code
+    mocha.opts
+        This is just an options file for mocha i gave it an option to check the whole directory
+
+./validator
+    This contains the validation middleware I wrote for Event and User controllers.
+    Also this contains the Error checker which checks for error and send a proper response, I add this here to avoid code duplication in different controllers.
+
+Now I will talk about each part seperately
+
+## Models
+
+I Add a connetion to Mlab DB in seperate file in the Initconnection.js file
+so we can have only one connection instance all across the app
+
+Event Schema
+    1 - Add another schema for points in GeoJSON format so we can benefit from this in the future for Geographical queris
+    
+    2 - Add this line  " Event = mongoose.model('Event', EventSchema) " so mongoose compiles a model for me so I can use it
+
+    3 - Add assoication between User and event but adding ownerId field in the schema
+
+User Schema
+    1 - Make basic schema for user 
+
+    2 - Add association between User and Events by the the events field in the schema
+    this is needed so we can retrieve all the events of a user faster
 
 
-## Submission
-Create a private repo on github, add @michelmustapha and @rajesh-brickbase as collaborators  and send an email to michel@brickbase.io indicating that you are done with the test.
+
+## Controllers
+
+Event Controller
+Add validation middleware before routing events to make sure that data came in the correct format and to give who ever is consuming the API a descriptive message to know what is wrong.   
+
+I used JWT tokens for security and to handle users logging and registering, so before adding or viewing any events a user must be logged in, I check this by a middleware function
+
+
+User Controller
+Authenticate Token is the middleware responsible for checking if token is valid.  
+
+Added validation for the user data to make sure that data came in the correct format and to give who ever is consuming the API a descriptive message to know what is wrong.  
+
+I encrypt the password before adding it in the databse using bcrypt for security.  
+
+I generate JWT tokens in succesful login and register and send them in the responce these are created by JWT and the secret is saved in the config file.  
+
+The JWT secret is generated bascially by picking random 64 bytes in hexa decimal format.  
+
+
+## Validators
+I used express-validator for validation as it keeps everything nice and clean
+Here we have 2 validators, these declare the rules in which the input should be following and check if this exists in the coming request or not after that the result of the check is called in the controller itself and is implmented in ErrorChecker.js
+
+I used body() here because I check the body variables in the request.
+
+
+## Tests
+I used mochaa and chai for testing and i used nyc for code coverage.
+in the user test I added this piece of code
+
+beforeEach((done) => {
+        User.deleteMany({}, (err) => {
+            done();
+        });
+    });
+
+
+this is because I have a different DB for testing I clear it then I put the needed data for test
+I used the same style in all the tests.
+
+I made seperate folder for helpers this is where all the hardcoded data come from to make code clean and avoid duplication.
+
+
+
+
+## Running
+
+Simply you can download the config files and run
+npm start ==> this sets the env to dev and start the server
+or 
+npm test ==> this sets the env to test and run tests then the code coverage
+    
+      
+
+
+
+
+Code coverage results
+
+File                   |  % Stmts | % Branch |  % Funcs |  % Lines | Uncovered Line #s |
+-----------------------|----------|----------|----------|----------|-------------------|
+All files              |    88.19 |    80.77 |    77.27 |     88.1 |                   |
+ code-test             |      100 |      100 |      100 |      100 |                   |
+  index.js             |      100 |      100 |      100 |      100 |                   |
+ code-test/controllers |    79.17 |    77.27 |    73.68 |    79.17 |                   |
+  EventController.js   |    77.42 |    83.33 |       70 |    77.42 |... 57,71,72,87,88 |
+  UserController.js    |    80.49 |       75 |    77.78 |    80.49 |... 8,74,81,82,120 |
+ code-test/models      |      100 |      100 |      100 |      100 |                   |
+  Events.js            |      100 |      100 |      100 |      100 |                   |
+  InitConnection.js    |      100 |      100 |      100 |      100 |                   |
+  User.js              |      100 |      100 |      100 |      100 |                   |
+ code-test/routes      |      100 |      100 |      100 |      100 |                   |
+  EventsRoutes.js      |      100 |      100 |      100 |      100 |                   |
+  UsersRoutes.js       |      100 |      100 |      100 |      100 |                   |
+ code-test/validator   |      100 |      100 |      100 |      100 |                   |
+  ErrorChecker.js      |      100 |      100 |      100 |      100 |                   |
+  EventValidator.js    |      100 |      100 |      100 |      100 |                   |
+-----------------------|----------|----------|----------|----------|-------------------|
